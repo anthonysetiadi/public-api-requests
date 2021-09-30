@@ -1,40 +1,44 @@
 // Declare variables //
 const searchContainer = document.querySelector('.search-container');
 const gallery = document.getElementById('gallery');
+let usersData = []
 
 /**
  * Get and Display 12 random users from 
  * https://randomuser.me
  * API call for users in US only
  */
- fetch('https://randomuser.me/api/?results=12&nat=us')
- .then(checkStatus)
- .then(res => res.json())
- .then(data => {
-   usersData = data.results
-   console.log(usersData)
-   generateGallery(usersData)
-   modalData(usersData)
- })
- .catch(error => console.log('Looks like there was a problem!', error))
+fetch('https://randomuser.me/api/?results=12&nat=us')
+  .then(checkStatus)
+  .then(res => res.json())
+  .then(data => {
+    usersData = data.results
+    console.log(usersData)
+    generateGallery(usersData)
+    modalData(usersData)
+    })
+  .catch(error => console.log('Looks like there was a problem', error))
 
-
-// Gallery markup //
-function galleryHTML(user) {
-  const galleryHTML = `
-      <div class="card">
-          <div class="card-img-container">
-              <img class="card-img" src="${user.picture.medium}" alt="profile picture">
-          </div>
-          <div class="card-info-container">
-              <h3 id="name" class="card-name cap">${user.name.first} ${user.name.last}</h3>
-              <p class="card-text">${user.email}</p>
-              <p class="card-text cap">${user.location.city}, ${user.location.state}</p>
-          </div>
-      </div>
+// Generate gallery of 12 random users to display on Page //
+function generateGallery(users) {
+  gallery.innerHTML = ''
+  const galleryHTML = users.map(user => {
+    return `
+    <div class="card">
+        <div class="card-img-container">
+            <img class="card-img" src="${user.picture.medium}" alt="profile picture">
+        </div>
+        <div class="card-info-container">
+            <h3 id="name" class="card-name cap">${user.name.first} ${user.name.last}</h3>
+            <p class="card-text">${user.email}</p>
+            <p class="card-text cap">${user.location.city}, ${user.location.state}</p>
+        </div>
+    </div>
     `
-      return galleryHTML;
-  }
+  })
+  .join('');
+  gallery.insertAdjacentHTML('beforeend', galleryHTML)
+}
 
 // Modal Markup //
 function modalHTML(user) {
@@ -53,10 +57,22 @@ function modalHTML(user) {
             <p class="modal-text">Birthday: ${user.dob.date.slice(5,7)}/${user.dob.date.slice(8,10)}/${user.dob.date.slice(0,4)}</p>
         </div>
     </div>
+    <div class="modal-btn-container">
+        <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+        <button type="button" id="modal-next" class="modal-next btn">Next</button>
+      </div>
+    </div>
   `
   return modalHTML;
 }
 
+// Search Bar Markup //
+const searchHTML = `
+  <form action="#" method="get">
+  <input type="search" id="search-input" class="search-input" placeholder="Search...">
+  <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+  </form>`
+searchContainer.insertAdjacentHTML('beforeend', searchHTML);
 
 
 // -----------------------
@@ -72,24 +88,19 @@ function checkStatus(response) {
   }
 };
 
-// Generate gallery of 12 random users to display on Page //
-function generateGallery(data) {
-  data.forEach(user => {
-    gallery.insertAdjacentHTML('beforeend', galleryHTML(user));
-  });
-}
-
 // Retrieve data of selected user to Display on Modal //
 function modalData (data) {
   const cards = document.querySelectorAll(".card")
   for(let i = 0; i < data.length; i++) {
     cards[i].addEventListener('click', e => {
       selectedCard = data.indexOf(data[i])
-      console.log(data[i])
-      console.log (selectedCard)
       generateModal(data[selectedCard])
     })
   }
+}
+
+function modalNextData (data) {
+  
 }
 
 // Dynamically display Modal with data from ModalData //
@@ -112,9 +123,10 @@ function showModal() {
 // Hide Modal //
 function closeModal() {
   const closeBtn = document.querySelector(".modal-close-btn");
-  const modalContainer = document.querySelector('.modal-container')
+  const modal = document.querySelector('.modal');
+  const modalContainer = document.querySelector('.modal-container');
   closeBtn.addEventListener('click', () => {
-    modalContainer.remove();
+    modalContainer.remove()
   })
   document.addEventListener('keyup', e => {
     if (e.key === "Escape") {
@@ -122,6 +134,15 @@ function closeModal() {
     }
   })
 }
+
+// Prev and Next Users in Modal //
+const modalBtnContainer = document.querySelector('.modal-btn-container')
+const prevBtn = document.querySelector('.modal-prev')
+const nextBtn = document.querySelector('.modal-next')
+
+
+
+
 
 // Format Phone Number //
 function formatCell(phoneNumberString) {  
@@ -132,4 +153,31 @@ function formatCell(phoneNumberString) {
   }
 }
 
+// Search for Name Match //
+
+const searchBar = document.querySelector('#search-input')
+const searchSubmit = document.querySelector('#search-submit')
+
+const searchName = () => {
+  let input = searchBar.value
+  const filteredNames = usersData.filter(names => {
+    const fullName = `${names.name.first.toLowerCase()} ${names.name.last.toLowerCase()}`
+    return fullName.includes(input.toLowerCase())
+  })
+  
+  // Show error if no results found
+  if (filteredNames.length == 0) {
+    gallery.innerHTML = 'No results found. Try another search.'
+  } else if (filteredNames.length >= 1) {
+    generateGallery(filteredNames)
+  } else {
+    generateGallery(usersData)
+  } 
+}
+
+/**
+ * EVENT LISTENERS
+ */
+searchBar.addEventListener('keyup', searchName)
+searchSubmit.addEventListener('click', searchName)
 
