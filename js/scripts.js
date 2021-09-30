@@ -2,6 +2,7 @@
 const searchContainer = document.querySelector('.search-container');
 const gallery = document.getElementById('gallery');
 let usersData = []
+let selectedCard
 
 /**
  * Get and Display 12 random users from 
@@ -99,20 +100,18 @@ function modalData (data) {
   }
 }
 
-function modalNextData (data) {
-  
-}
-
 // Dynamically display Modal with data from ModalData //
 function generateModal(data) {
   gallery.insertAdjacentHTML('afterend', modalHTML(data))
   showModal()
   closeModal()
+  modalToggle()
   }
 
 /**
  * MODAL FUNCTIONALITY
  */
+
 
 // Show Modal //
 function showModal() {
@@ -123,7 +122,6 @@ function showModal() {
 // Hide Modal //
 function closeModal() {
   const closeBtn = document.querySelector(".modal-close-btn");
-  const modal = document.querySelector('.modal');
   const modalContainer = document.querySelector('.modal-container');
   closeBtn.addEventListener('click', () => {
     modalContainer.remove()
@@ -136,12 +134,54 @@ function closeModal() {
 }
 
 // Prev and Next Users in Modal //
+function modalToggle() {
+
 const modalBtnContainer = document.querySelector('.modal-btn-container')
+const modalContainer = document.querySelector('.modal-container')
 const prevBtn = document.querySelector('.modal-prev')
 const nextBtn = document.querySelector('.modal-next')
+const cards = document.querySelectorAll(".card")
 
+  // modalBtnContainer.addEventListener('click', e => {
+  //   if (e.target == nextBtn && selectedCard < cards.length -1) {
+  //     selectedCard ++;
+  //   } else if (e.target == nextBtn && selectedCard == cards.length -1) {
+  //     selectedCard = 0;
+  //   } else if (e.target == prevBtn && selectedCard > 0) {
+  //     selectedCard --;
+  //   } else if (e.target == prevBtn && selectedCard == 0) {
+  //     selectedCard = cards.length -1;
+  //   }
+  //   modalContainer.remove()
+  //   generateModal(usersData[selectedCard]);
+  // })
+  
 
+  modalBtnContainer.addEventListener('click', e => {
+    if (e.target === prevBtn) {
+      displayPrevModal()
+    } else if (e.target === nextBtn) {
+      displayNextModal()
+    }
+    modalContainer.remove()
+    generateModal(usersData[selectedCard])
 
+    function displayPrevModal() {
+      if (selectedCard > 0) {
+        selectedCard --;
+      } else if (selectedCard === 0) {
+        prevBtn.disabled = true
+      }
+    }
+    function displayNextModal() {
+      if (selectedCard < cards.length -1) {
+        selectedCard ++;
+      } else if (selectedCard === cards.length -1) { 
+        nextBtn.disabled = true;
+    }
+  }
+})
+}
 
 
 // Format Phone Number //
