@@ -1,4 +1,5 @@
 // Declare variables //
+const randomUsersUrl = 'https://randomuser.me/api/?results=12&nat=us'
 const searchContainer = document.querySelector('.search-container');
 const gallery = document.getElementById('gallery');
 let usersData = []
@@ -9,7 +10,8 @@ let selectedCard
  * https://randomuser.me
  * API call for users in US only
  */
-fetch('https://randomuser.me/api/?results=12&nat=us')
+
+fetch(randomUsersUrl)
   .then(checkStatus)
   .then(res => res.json())
   .then(data => {
@@ -18,12 +20,12 @@ fetch('https://randomuser.me/api/?results=12&nat=us')
     generateGallery(usersData)
     modalData(usersData)
     })
-  .catch(error => console.log('Looks like there was a problem', error))
+  .catch(error => console.log('Looks like there was a problem!', error))
 
 // Generate gallery of 12 random users to display on Page //
-function generateGallery(users) {
+function generateGallery(data) {
   gallery.innerHTML = ''
-  const galleryHTML = users.map(user => {
+  const galleryHTML = data.map(user => {
     return `
     <div class="card">
         <div class="card-img-container">
@@ -57,11 +59,10 @@ function modalHTML(user) {
             <p class="modal-text">${user.location.street.number} ${user.location.street.name}, ${user.location.city}, ${user.location.state}, ${user.location.postcode}</p>
             <p class="modal-text">Birthday: ${user.dob.date.slice(5,7)}/${user.dob.date.slice(8,10)}/${user.dob.date.slice(0,4)}</p>
         </div>
-    </div>
-    <div class="modal-btn-container">
-        <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
-        <button type="button" id="modal-next" class="modal-next btn">Next</button>
-      </div>
+          <div class="modal-btn-container">
+            <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+            <button type="button" id="modal-next" class="modal-next btn">Next</button>
+          </div>
     </div>
   `
   return modalHTML;
@@ -79,15 +80,13 @@ searchContainer.insertAdjacentHTML('beforeend', searchHTML);
 // -----------------------
 // HELPER FUNCTIONS
 // -----------------------
-
-// Check Status of Fetch Request //
 function checkStatus(response) {
   if(response.ok) {
-    return Promise.resolve(response);
+      return Promise.resolve(response);
   } else {
-    return Promise.reject(new Error(response.statusText));
+      return Promise.reject(new Error(response.statusText));
   }
-};
+}
 
 // Retrieve data of selected user to Display on Modal //
 function modalData (data) {
@@ -102,7 +101,7 @@ function modalData (data) {
 
 // Dynamically display Modal with data from ModalData //
 function generateModal(data) {
-  gallery.insertAdjacentHTML('afterend', modalHTML(data))
+  gallery.insertAdjacentHTML('beforeend', modalHTML(data))
   showModal()
   closeModal()
   modalToggle()
@@ -119,9 +118,10 @@ function showModal() {
   modalContainer.style.display = "block";
 }
 
-// Hide Modal //
+// Close Modal //
 function closeModal() {
   const closeBtn = document.querySelector(".modal-close-btn");
+  const modal = document.querySelector('.modal')
   const modalContainer = document.querySelector('.modal-container');
   closeBtn.addEventListener('click', () => {
     modalContainer.remove()
@@ -131,6 +131,11 @@ function closeModal() {
       closeBtn.click();
     }
   })
+  document.addEventListener('click', e => {
+    if (e.target == modalContainer){
+      modalContainer.remove()
+    }
+  })
 }
 
 // Prev and Next Users in Modal //
@@ -138,49 +143,35 @@ function modalToggle() {
 
 const modalBtnContainer = document.querySelector('.modal-btn-container')
 const modalContainer = document.querySelector('.modal-container')
-const prevBtn = document.querySelector('.modal-prev')
-const nextBtn = document.querySelector('.modal-next')
+const prevBtn = document.querySelector('#modal-prev')
+const nextBtn = document.querySelector('#modal-next')
 const cards = document.querySelectorAll(".card")
-
-  // modalBtnContainer.addEventListener('click', e => {
-  //   if (e.target == nextBtn && selectedCard < cards.length -1) {
-  //     selectedCard ++;
-  //   } else if (e.target == nextBtn && selectedCard == cards.length -1) {
-  //     selectedCard = 0;
-  //   } else if (e.target == prevBtn && selectedCard > 0) {
-  //     selectedCard --;
-  //   } else if (e.target == prevBtn && selectedCard == 0) {
-  //     selectedCard = cards.length -1;
-  //   }
-  //   modalContainer.remove()
-  //   generateModal(usersData[selectedCard]);
-  // })
-  
 
   modalBtnContainer.addEventListener('click', e => {
     if (e.target === prevBtn) {
       displayPrevModal()
     } else if (e.target === nextBtn) {
       displayNextModal()
-    }
-    modalContainer.remove()
+    } 
+    modalContainer.remove();
     generateModal(usersData[selectedCard])
 
     function displayPrevModal() {
-      if (selectedCard > 0) {
-        selectedCard --;
-      } else if (selectedCard === 0) {
+      if (selectedCard === 0) {
         prevBtn.disabled = true
-      }
-    }
+      } else if (selectedCard > 0)
+        selectedCard --;
+      } 
+
     function displayNextModal() {
-      if (selectedCard < cards.length -1) {
-        selectedCard ++;
-      } else if (selectedCard === cards.length -1) { 
+      if (selectedCard === cards.length -1) {
         nextBtn.disabled = true;
+      } else if(selectedCard < cards.length -1) {
+        selectedCard ++;
+      } 
     }
-  }
-})
+
+  })
 }
 
 
@@ -220,4 +211,3 @@ const searchName = () => {
  */
 searchBar.addEventListener('keyup', searchName)
 searchSubmit.addEventListener('click', searchName)
-
