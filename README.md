@@ -3,7 +3,7 @@ This project was created by [@anthonysetiadi](https://github.com/anthonysetiadi)
 
 Unit 5 Project
 
-This project is also hosted on [GitHub Pages](https://docs.github.com/en/pages) and can be opened [here](https://anthonysetiadi.github.io/public-api-requests/.
+This project is also hosted on [GitHub Pages](https://docs.github.com/en/pages) and can be opened [here](https://anthonysetiadi.github.io/public-api-requests/).
 
 ## Awesome Startup Directory
 Using the Random User Generator API (https://randomuser.me/), this project's goal was to create an app that would allow for 12 random "employees" data to build a prototype for an employee directory.
