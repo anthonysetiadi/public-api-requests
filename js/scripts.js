@@ -16,7 +16,6 @@ fetch(randomUsersUrl)
   .then(res => res.json())
   .then(data => {
     usersData = data.results
-    console.log(usersData)
     generateGallery(usersData)
     modalData(usersData)
     })
@@ -103,8 +102,8 @@ function modalData (data) {
 function generateModal(data) {
   gallery.insertAdjacentHTML('beforeend', modalHTML(data))
   showModal()
-  closeModal()
   modalToggle()
+  closeModal()
   }
 
 /**
@@ -140,37 +139,37 @@ function closeModal() {
 
 // Prev and Next Users in Modal //
 function modalToggle() {
+  const modalBtnContainer = document.querySelector('.modal-btn-container')
+  const modalContainer = document.querySelector('.modal-container')
+  const prevBtn = document.querySelector('.modal-prev')
+  const nextBtn = document.querySelector('.modal-next')
+  const cards = document.querySelectorAll(".card")
 
-const modalBtnContainer = document.querySelector('.modal-btn-container')
-const modalContainer = document.querySelector('.modal-container')
-const prevBtn = document.querySelector('#modal-prev')
-const nextBtn = document.querySelector('#modal-next')
-const cards = document.querySelectorAll(".card")
+  if (selectedCard === 0) {
+    prevBtn.remove()
+  } else if (selectedCard === cards.length -1) {
+    nextBtn.remove()
+  }
 
   modalBtnContainer.addEventListener('click', e => {
     if (e.target === prevBtn) {
       displayPrevModal()
     } else if (e.target === nextBtn) {
       displayNextModal()
-    } 
-    modalContainer.remove();
-    generateModal(usersData[selectedCard])
-
+    }  
+  
     function displayPrevModal() {
-      if (selectedCard === 0) {
-        prevBtn.disabled = true
-      } else if (selectedCard > 0)
+      if (selectedCard > 0) {
         selectedCard --;
       } 
-
+    }
     function displayNextModal() {
-      if (selectedCard === cards.length -1) {
-        nextBtn.disabled = true;
-      } else if(selectedCard < cards.length -1) {
+      if (selectedCard < cards.length -1) {
         selectedCard ++;
       } 
     }
-
+    modalContainer.remove();
+    generateModal(usersData[selectedCard])
   })
 }
 
@@ -188,6 +187,7 @@ function formatCell(phoneNumberString) {
 
 const searchBar = document.querySelector('#search-input')
 const searchSubmit = document.querySelector('#search-submit')
+let filteredNames = []
 
 const searchName = () => {
   let input = searchBar.value
@@ -198,13 +198,14 @@ const searchName = () => {
   
   // Show error if no results found
   if (filteredNames.length == 0) {
-    gallery.innerHTML = 'No results found. Try another search.'
+    gallery.innerHTML = `No Results Found. Try another search.`
   } else if (filteredNames.length >= 1) {
     generateGallery(filteredNames)
-  } else {
-    generateGallery(usersData)
-  } 
+    modalData(filteredNames)
+  }
 }
+
+
 
 /**
  * EVENT LISTENERS
